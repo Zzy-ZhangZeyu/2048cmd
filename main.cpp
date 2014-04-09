@@ -161,7 +161,7 @@ void youwin(){
 int main()
 {
     cout<<"This is the command line version of 2048!"<<endl;
-    cout<<"Version 1.01"<<endl;
+    cout<<"Version 1.02"<<endl;
     cout<<"combine the numbers until one adds up to 2048"<<endl;
     cout<<"Numbers of the same value combine, if the combined result can"<<endl<<"can combine again it will"<<endl;
     cout<<"use WASD to move the numbers"<<endl;
