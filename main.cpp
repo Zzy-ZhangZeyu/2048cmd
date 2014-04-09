@@ -126,7 +126,15 @@ void printbuffer(){
         SetConsoleCursorPosition(hStdout, csbiInfo.dwCursorPosition);
         for(unsigned int x = 0; x < 4; x++){
             for(unsigned int y = 0; y < 4; y++){
-                cout<<board[x][y]<<"    ";
+                if(board[x][y] != 0){
+                    const int saved_colors = csbiInfo.wAttributes;
+                    SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_INTENSITY);
+                    cout<<board[x][y]<<"    ";
+                    SetConsoleTextAttribute(hStdout, saved_colors);
+                }else{
+                    cout<<board[x][y]<<"    ";
+                }
+
             }
             cout<<endl<<endl<<endl;
         }
@@ -138,7 +146,7 @@ void printbuffer(){
 //0x53 == S key
 //0x44 == D key
 void processkey(){
-    if((GetTickCount() - lastpressed) > 125){
+    if((GetTickCount() - lastpressed) > 100){
         if(GetKeyState(0x57) & 0x8000 || GetKeyState(VK_UP) & 0x8000){
             moveup();
         }else if(GetKeyState(0x53) & 0x8000 || GetKeyState(VK_DOWN) & 0x8000){
@@ -161,7 +169,7 @@ void youwin(){
 int main()
 {
     cout<<"This is the command line version of 2048!"<<endl;
-    cout<<"Version 1.02"<<endl;
+    cout<<"Version 1.05"<<endl;
     cout<<"combine the numbers until one adds up to 2048"<<endl;
     cout<<"Numbers of the same value combine, if the combined result can"<<endl<<"can combine again it will"<<endl;
     cout<<"use WASD to move the numbers"<<endl;
