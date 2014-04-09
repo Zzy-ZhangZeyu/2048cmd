@@ -1,15 +1,17 @@
 #include <iostream>
 #include <stdlib.h>
+#include <random>
 #include <math.h>
 #include <time.h>
-#include <vector>
 #include <windows.h>
 using namespace std;
-vector<vector<int> > board(4, vector<int>(4));
-char ikey;
+int board[4][4];
 int greatest = 2;
-uint8_t quitflag = 0;
-uint8_t boardchange = 1;
+bool quitflag = 0;
+bool boardchange = 1;
+mt19937 random;
+uniform_int_distribution<mt19937::result_type> distribution(0,3);
+int lastpressed;
 HANDLE hStdout;
 HWND cmdhwnd;
 CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
@@ -66,15 +68,10 @@ void moveleft(){
     }
 }
 void initgame(){
-    //set the random number seed to the current time
-    srand(time(NULL));
-    //the location of the first number
-    board[(rand()%3)][(rand()%3)] = 2;
-    //set the random number seed to a more unique time
-    srand(time(NULL)| time(NULL)/3);
-    //the location of the second number
-    board[(rand()%3)][(rand()%3)] = 2;
-    //get the output handle of the command line
+    random.seed(GetTickCount());
+    lastpressed = GetTickCount();
+    board[distribution(random)][distribution(random)] = 2;
+    board[distribution(random)][distribution(random)] = 2;
     hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
     //get the info about the command line
     GetConsoleScreenBufferInfo(hStdout, &csbiInfo);
@@ -106,12 +103,12 @@ void generatenum(){
         int x;
         int y;
         srand((unsigned int)GetTickCount()-1);
-        x = rand()%3;
+        x = distribution(random);
         srand((unsigned int)GetTickCount());
-        y = rand()%3;
+        y = distribution(random);
         if(board[y][x] == 0){
             srand((unsigned int) GetTickCount()+1);
-            int putthere = rand()%1;
+            int putthere = distribution(random);
             if(putthere == 0){
                 board[y][x] = 2;
             }else{
@@ -127,8 +124,8 @@ void printbuffer(){
         csbiInfo.dwCursorPosition.X = 0;
         csbiInfo.dwCursorPosition.Y = 0;
         SetConsoleCursorPosition(hStdout, csbiInfo.dwCursorPosition);
-        for(unsigned int x = 0; x < board.size(); x++){
-            for(unsigned int y = 0; y < board[x].size(); y++){
+        for(unsigned int x = 0; x < 4; x++){
+            for(unsigned int y = 0; y < 4; y++){
                 cout<<board[x][y]<<"    ";
             }
             cout<<endl<<endl<<endl;
@@ -141,14 +138,17 @@ void printbuffer(){
 //0x53 == S key
 //0x44 == D key
 void processkey(){
-    if(GetKeyState(0x57) & 0x8000 || GetKeyState(VK_UP) & 0x8000){
-        moveup();
-    }else if(GetKeyState(0x53) & 0x8000 || GetKeyState(VK_DOWN) & 0x8000){
-        movedown();
-    }else if(GetKeyState(0x41) & 0x8000 || GetKeyState(VK_LEFT) & 0x8000){
-        moveleft();
-    }else if(GetKeyState(0x44) & 0x8000 || GetKeyState(VK_RIGHT) & 0x8000){
-        moveright();
+    if((GetTickCount() - lastpressed) > 125){
+        if(GetKeyState(0x57) & 0x8000 || GetKeyState(VK_UP) & 0x8000){
+            moveup();
+        }else if(GetKeyState(0x53) & 0x8000 || GetKeyState(VK_DOWN) & 0x8000){
+            movedown();
+        }else if(GetKeyState(0x41) & 0x8000 || GetKeyState(VK_LEFT) & 0x8000){
+            moveleft();
+        }else if(GetKeyState(0x44) & 0x8000 || GetKeyState(VK_RIGHT) & 0x8000){
+                moveright();
+        }
+        lastpressed = GetTickCount();
     }
 }
 void youwin(){
